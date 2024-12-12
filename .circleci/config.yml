@@ -413,12 +413,6 @@ workflows:
     jobs:
       - link-validation
   home-page-redirect:
-    triggers:
-      - push:
-          filters:
-            branches:
-              only:
-                - test
     jobs:
       - home-page-redirect
   scheduled-backup-workflow:
