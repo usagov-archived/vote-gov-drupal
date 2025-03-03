@@ -1,0 +1,26 @@
+diff --git a/composer.json b/composer.json
+index 0b250d5..946c18e 100644
+--- a/composer.json
++++ b/composer.json
+@@ -4,7 +4,7 @@
+     "type": "drupal-module",
+     "homepage": "https://www.drupal.org/project/log_stdout",
+     "require": {
+-        "drupal/core": "^8.8 || ^9 || ^10"
++        "drupal/core": "^8.8 || ^9 || ^10 || ^11"
+     },
+     "support": {
+         "issues": "https://www.drupal.org/project/issues/log_stdout",
+diff --git a/log_stdout.info.yml b/log_stdout.info.yml
+index 1bab5cb..cd2037f 100644
+--- a/log_stdout.info.yml
++++ b/log_stdout.info.yml
+@@ -1,5 +1,5 @@
+-name: Log Stdout
+-description: Log watchdog messages to stdout
++name: 'Log Stdout'
++description: 'Log watchdog messages to stdout'
+ package: Logging
+ type: module
+-core_version_requirement: ^8 || ^9 || ^10
++core_version_requirement: ^8 || ^9 || ^10 || ^11
