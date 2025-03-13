@@ -111,7 +111,7 @@
                 "appendXML() does not allow &nbsp; or double commas in comments (original issue: https://www.drupal.org/node/3496686)": "patches/embedded_content/3496686-appendxml-does-not.patch"
             },
             "drupal/log_stdout": {
-              "Add support for D11 (original issue: https://www.drupal.org/project/log_stdout/issues/3481344)": "patches/log_stdout/Drupal-11-support-3481344.patch"
+              "Add support for D11 (original issue: https://www.drupal.org/project/log_stdout/issues/3481344)": "patches/log_stdout/Drupal-11-support-3481344-00.patch"
             },
             "drupal/new_relic_rpm": {
               "Automated Drupal 11 compatibility fixes for new_relic_rpm (original issue: https://www.drupal.org/project/new_relic_rpm/issues/3433555)": "patches/new_relic_rpm/new_relic_rpm-3433555-4_0.patch"
