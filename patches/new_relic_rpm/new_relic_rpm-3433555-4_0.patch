@@ -1,0 +1,111 @@
+diff --git a/new_relic_rpm.info.yml b/new_relic_rpm.info.yml
+index 25902dd..37324ff 100644
+--- a/new_relic_rpm.info.yml
++++ b/new_relic_rpm.info.yml
+@@ -1,6 +1,6 @@
+ name: 'New Relic RPM'
+ description: 'Integration with the New Relic reporting and optimization system.'
+-core_version_requirement: ^9.1 || ^10
++core_version_requirement: ^9.1 || ^10 || ^11
+ type: module
+ configure: new_relic_rpm.settings
+
+diff --git a/src/Client/NewRelicApiClient.php b/src/Client/NewRelicApiClient.php
+index f9ce866..65d3b00 100644
+--- a/src/Client/NewRelicApiClient.php
++++ b/src/Client/NewRelicApiClient.php
+@@ -268,7 +268,7 @@ class NewRelicApiClient {
+       return $response;
+     }
+     catch (GuzzleException $e) {
+-      watchdog_exception('new_relic_rpm', $e);
++      \Drupal\Component\Utility\DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '10.1.0', fn() => \Drupal\Core\Utility\Error::logException(\Drupal::logger('new_relic_rpm'), $e), fn() => watchdog_exception('new_relic_rpm', $e));
+       throw $e;
+     }
+   }
+diff --git a/src/EventSubscriber/ExceptionSubscriber.php b/src/EventSubscriber/ExceptionSubscriber.php
+index c6c9474..488365b 100644
+--- a/src/EventSubscriber/ExceptionSubscriber.php
++++ b/src/EventSubscriber/ExceptionSubscriber.php
+@@ -33,7 +33,7 @@ class ExceptionSubscriber implements EventSubscriberInterface {
+   /**
+    * {@inheritdoc}
+    */
+-  public static function getSubscribedEvents() {
++  public static function getSubscribedEvents(): array {
+
+     // Ensure this runs just before FinalExceptionSubscriber.
+     $events[KernelEvents::EXCEPTION][] = ['onException', -255];
+diff --git a/src/EventSubscriber/NewRelicConfigSubscriber.php b/src/EventSubscriber/NewRelicConfigSubscriber.php
+index 6c73dc8..6e60baa 100644
+--- a/src/EventSubscriber/NewRelicConfigSubscriber.php
++++ b/src/EventSubscriber/NewRelicConfigSubscriber.php
+@@ -57,7 +57,7 @@ class NewRelicConfigSubscriber implements EventSubscriberInterface {
+   /**
+    * {@inheritdoc}
+    */
+-  public static function getSubscribedEvents() {
++  public static function getSubscribedEvents(): array {
+     $events[ConfigEvents::IMPORT][] = ['onImport'];
+     return $events;
+   }
+diff --git a/src/EventSubscriber/NewRelicRequestSubscriber.php b/src/EventSubscriber/NewRelicRequestSubscriber.php
+index 9665a0c..ed76e5a 100644
+--- a/src/EventSubscriber/NewRelicRequestSubscriber.php
++++ b/src/EventSubscriber/NewRelicRequestSubscriber.php
+@@ -84,7 +84,7 @@ class NewRelicRequestSubscriber implements EventSubscriberInterface {
+   /**
+    * {@inheritdoc}
+    */
+-  public static function getSubscribedEvents() {
++  public static function getSubscribedEvents(): array {
+
+     // Run after RouterListener, which has priority 32.
+     return [KernelEvents::REQUEST => ['onRequest', 30]];
+@@ -103,7 +103,7 @@ class NewRelicRequestSubscriber implements EventSubscriberInterface {
+     // If this is a sub request, only process it if there was no master
+     // request yet. In that case, it is probably a page not found or access
+     // denied page.
+-    if ($event->getRequestType() !== HttpKernelInterface::MASTER_REQUEST && $this->processedMasterRequest) {
++    if ($event->getRequestType() !== HttpKernelInterface::MAIN_REQUEST && $this->processedMasterRequest) {
+       return;
+     }
+
+diff --git a/src/EventSubscriber/RoutingTransactionNameSubscriber.php b/src/EventSubscriber/RoutingTransactionNameSubscriber.php
+index f9f606a..7701136 100644
+--- a/src/EventSubscriber/RoutingTransactionNameSubscriber.php
++++ b/src/EventSubscriber/RoutingTransactionNameSubscriber.php
+@@ -22,7 +22,7 @@ class RoutingTransactionNameSubscriber implements EventSubscriberInterface {
+   /**
+    * {@inheritdoc}
+    */
+-  public static function getSubscribedEvents() {
++  public static function getSubscribedEvents(): array {
+     return [
+       RoutingEvents::ALTER => ['addTransactionNamesToRoutes'],
+     ];
+diff --git a/src/Form/NewRelicRpmSettings.php b/src/Form/NewRelicRpmSettings.php
+index 9aea285..778f649 100644
+--- a/src/Form/NewRelicRpmSettings.php
++++ b/src/Form/NewRelicRpmSettings.php
+@@ -6,6 +6,7 @@ use Drupal\Core\Form\ConfigFormBase;
+ use Drupal\Core\Form\FormStateInterface;
+ use Drupal\Core\Logger\RfcLogLevel;
+ use Drupal\new_relic_rpm\ExtensionAdapter\NewRelicAdapterInterface;
++use Drupal\user\Entity\Role;
+
+ /**
+  * Provides a settings form to configure the New Relic RPM module.
+@@ -69,7 +70,11 @@ class NewRelicRpmSettings extends ConfigFormBase {
+       '#default_value' => $this->config('new_relic_rpm.settings')->get('track_cron'),
+     ];
+
+-    $roles = user_role_names();
++    $load_roles = Role::loadMultiple();
++    $roles = [];
++    foreach ($load_roles as $role_id => $role) {
++      $roles[$role_id] = $role->label();
++    }
+     $form['transactions']['ignore_roles'] = [
+       '#type' => 'select',
+       '#multiple' => TRUE,
