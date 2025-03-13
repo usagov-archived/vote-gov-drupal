@@ -107,17 +107,7 @@ source $(pwd $(dirname $0))/scripts/pipeline/cloud-gov-remote-command.sh "${proj
 date
 
 echo "Running 'drush cim -y' on '${RESTORE_ENV}' database..."
-source $(pwd $(dirname $0))/scripts/pipeline/cloud-gov-remote-command.sh "${project}-drupal-${RESTORE_ENV}" "drush cim -y" >/dev/null 2>&1
-
-date
-
-echo "Running 'drush cim -y' again on '${RESTORE_ENV}' database..."
-source $(pwd $(dirname $0))/scripts/pipeline/cloud-gov-remote-command.sh "${project}-drupal-${RESTORE_ENV}" "drush cim -y" >/dev/null 2>&1
-
-date
-
-echo "Running 'drush updb -y --no-cache-clear' on '${RESTORE_ENV}' database..."
-source $(pwd $(dirname $0))/scripts/pipeline/cloud-gov-remote-command.sh "${project}-drupal-${RESTORE_ENV}" "drush updb -y --no-cache-clear"
+source $(pwd $(dirname $0))/scripts/pipeline/cloud-gov-remote-command.sh "${project}-drupal-${RESTORE_ENV}" "drush cim -y"
 
 date
 
